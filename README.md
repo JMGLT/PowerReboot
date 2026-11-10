@@ -14,6 +14,7 @@ Get the latest APK from the **[Releases page](https://github.com/JMGLT/PowerRebo
 - `PackageInfo.longVersionCode` (API 28) replaced with `PackageInfoCompat.getLongVersionCode`.
 - App renamed to PowerReboot, with its own `applicationId` (`io.github.jmglt.powerreboot`), so it installs next to the original RebootNya instead of replacing it. The Java/Kotlin package is unchanged to keep the diff small.
 - The Shizuku user-service component now uses the real package name instead of a hardcoded one.
+- Work mode is auto-detected on first run: Shizuku if its service is running, otherwise Root (upstream always defaulted to Shizuku, which fails with "Shizuku permission denied" on devices without it). You can still change it in Settings.
 
 Everything else is upstream code. This fork has not been tested on every Android 8.x device; please open an issue if something fails.
 

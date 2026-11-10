@@ -11,6 +11,7 @@ import android.os.Build
 import android.text.TextUtils
 import androidx.annotation.IntDef
 import androidx.appcompat.app.AppCompatDelegate
+import rikka.shizuku.Shizuku
 import java.util.Locale
 
 object NyaSettings {
@@ -83,7 +84,12 @@ object NyaSettings {
     @JvmStatic
     @MODE
     fun getWorkMode(): Int {
-        return preferences.getInt("work_mode", MODE.SHIZUKU)
+        if (preferences.contains("work_mode")) {
+            return preferences.getInt("work_mode", MODE.SHIZUKU)
+        }
+        // Nothing chosen yet: use Shizuku only if its service is actually running,
+        // otherwise Root, so devices without Shizuku work out of the box.
+        return if (Shizuku.pingBinder()) MODE.SHIZUKU else MODE.ROOT
     }
 
     @JvmStatic
