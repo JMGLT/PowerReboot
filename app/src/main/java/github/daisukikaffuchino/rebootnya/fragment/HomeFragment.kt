@@ -347,7 +347,7 @@ class HomeFragment : DialogFragment() {
                 }
             }
 
-            ListItemEnum.POWER_OFF -> runRootCommand("reboot -p")
+            ListItemEnum.POWER_OFF -> runRootCommand(powerOffCommand())
         }
     }
 

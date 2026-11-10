@@ -16,6 +16,7 @@ Get the latest APK from the **[Releases page](https://github.com/JMGLT/PowerRebo
 - The Shizuku user-service component now uses the real package name instead of a hardcoded one.
 - Work mode is now **Automatic** by default: Shizuku if it is running and authorized, otherwise Root, otherwise a new **Local ADB** mode (upstream always defaulted to Shizuku, which fails with "Shizuku permission denied" on devices without it). You can still pick a mode in Settings.
 - On Android TV boxes, **Power off** in Local ADB mode turns HDMI-CEC off and puts the box in standby (many boxes turn `reboot -p` into a reboot, and CEC wakes a sleeping box right away).
+- **Power off on Android TV boxes:** these devices usually reboot on `reboot -p`, and HDMI-CEC can wake them right back up, so on TV devices "Power off" turns CEC off and puts the box in standby (wake it with its own remote).
 - New **Local ADB** mode: the app talks to the device's own `adbd` on `127.0.0.1:5555`, so it works without root and without Shizuku. Requirements: network/wireless debugging enabled on the device (port 5555, e.g. `adb tcpip 5555` once), and accepting the "Allow USB debugging?" prompt the first time (tick "Always allow"). This is why the app now declares the `INTERNET` permission (loopback only).
 
 Everything else is upstream code. This fork has not been tested on every Android 8.x device; please open an issue if something fails.
