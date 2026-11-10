@@ -347,7 +347,7 @@ class HomeFragment : DialogFragment() {
                 }
             }
 
-            ListItemEnum.POWER_OFF -> runRootCommand(powerOffCommand())
+            ListItemEnum.POWER_OFF -> runRootCommand(adbCommandFor(ListItemEnum.POWER_OFF)?.first ?: "reboot -p")
         }
     }
 
