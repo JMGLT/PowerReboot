@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.text.Spanned
 import android.widget.Toast
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.net.toUri
 import androidx.core.text.HtmlCompat
 import github.daisukikaffuchino.rebootnya.R
@@ -16,7 +17,8 @@ fun getAppVer(context: Context): String {
     try {
         val info = manager.getPackageInfo(context.packageName, 0)
         val versionName = info.versionName
-        val versionCode = info.longVersionCode
+        // PackageInfo.longVersionCode only exists since API 28; compat covers API 26/27.
+        val versionCode = PackageInfoCompat.getLongVersionCode(info)
         return "$versionName ($versionCode)"
     } catch (e: PackageManager.NameNotFoundException) {
         e.fillInStackTrace()

@@ -1,62 +1,32 @@
-English | [简体中文](README.zh.md) | [Türkçe](README.tr.md)
+# PowerReboot
 
-<img src="./image/banner.png" alt="Banner"/>
+PowerReboot is a fork of [RebootNya](https://github.com/daisukiKaffuChino/RebootNya) by daisukiKaffuChino that runs on **Android 8.0 (API 26) and newer**. The original app requires Android 9.
 
-# RebootNya
+It is a simple reboot utility that gives quick access to reboot options that normally need elevated privileges (reboot, power off, recovery, bootloader, safe mode, soft reboot, restart System UI, lock screen). It works with **Root** or **[Shizuku](https://shizuku.rikka.app/)**.
 
-[<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png"
-     alt="Get it at IzzyOnDroid"
-     height="60"
-     align="right">](https://apt.izzysoft.de/packages/github.daisukikaffuchino.rebootnya)
+## Changes from upstream
 
-[![IzzyOnDroid release](https://img.shields.io/endpoint?url=https://apt.izzysoft.de/fdroid/api/v1/shield/github.daisukikaffuchino.rebootnya&label=IzzyOnDroid)](https://apt.izzysoft.de/packages/github.daisukikaffuchino.rebootnya)
-[![GitHub release](https://img.shields.io/github/release/daisukiKaffuChino/RebootNya.svg?logo=github)](https://github.com/daisukiKaffuChino/RebootNya/releases/latest)
+- `minSdk` lowered from 28 to 26.
+- `PackageInfo.longVersionCode` (API 28) replaced with `PackageInfoCompat.getLongVersionCode`.
+- App renamed to PowerReboot, with its own `applicationId` (`io.github.jmglt.powerreboot`), so it installs next to the original RebootNya instead of replacing it. The Java/Kotlin package is unchanged to keep the diff small.
+- The Shizuku user-service component now uses the real package name instead of a hardcoded one.
 
-[![RB Status](https://shields.rbtlog.dev/simple/github.daisukikaffuchino.rebootnya)](https://shields.rbtlog.dev/github.daisukikaffuchino.rebootnya)
-[![Crowdin](https://badges.crowdin.net/rebootnya/localized.svg)](https://crowdin.com/project/rebootnya)
-[![GitHub license](https://img.shields.io/github/license/daisukiKaffuChino/RebootNya)](https://github.com/daisukiKaffuChino/RebootNya/blob/main/LICENSE)
+Everything else is upstream code. This fork has not been tested on every Android 8.x device; please open an issue if something fails.
 
-RebootNya is a simple yet advanced reboot utility, and provides convenient access to various reboot options that normally require elevated privileges. The app supports both **Root** and **[Shizuku](https://shizuku.rikka.app/)**, allowing users to execute reboot commands safely and transparently.
+## Intent-based control
 
-Tested on some devices and works well on Android 9 to 17.
-
-> On some ROMs’ default launcher, the transparent background may not display correctly (e.g., ColorOS 15). The solution is to switch to another launcher, such as Lawnchair.
-
-## Intent-based Control
-
-RebootNya now supports launching and closing the app via specific intents, allowing integration with external automation tools. Send the following intent to class `github.daisukikaffuchino.rebootnya.MainActivity` to use the feature.
+Same as upstream: send one of these actions to class `github.daisukikaffuchino.rebootnya.MainActivity` (using this app's package name).
 
 ```xml
-<!-- Launch app -->
 <action android:name="github.daisukikaffuchino.rebootnya.action.LAUNCH" />
-<!-- Close app -->
 <action android:name="github.daisukikaffuchino.rebootnya.action.CLOSE" />
-<!-- Switch interface visibility -->
 <action android:name="github.daisukikaffuchino.rebootnya.action.TOGGLE" />
 ```
 
-## Development Background
+## Building
 
-One of my old phones has both the power and volume buttons broken, so I urgently needed an advanced reboot app that is aesthetically pleasing, lightweight, and easy to use.
+Requires JDK 21 and the Android SDK (compileSdk 37). `./gradlew assembleDebug`, or run the **Build APK** GitHub Actions workflow and download the artifact.
 
-## Contributors
+## License
 
-Feel free to dive in! [Open an issue](https://github.com/daisukiKaffuChino/RebootNya/issues/new/choose) or submit pull requests (PRs).
-
-This project exists thanks to all the people who contribute.
-
-![Contributors](https://contrib.rocks/image?repo=daisukiKaffuChino/RebootNya)
-
-## Licenses
-
-- **[RebootNya](https://github.com/daisukiKaffuChino/RebootNya)**: Apache-2.0 license
-- **[AboutLibraries](https://github.com/mikepenz/AboutLibraries)**: Apache-2.0 license
-- **[Android Jetpack](https://github.com/androidx/androidx)**: Apache-2.0 license
-- **[Material Components for Android](https://github.com/material-components/material-components-android)**: Apache-2.0 license
-- **[libsu](https://github.com/topjohnwu/libsu)**: Apache-2.0 license
-- **[RikkaX](https://github.com/RikkaApps/RikkaX)**: MIT license
-- **[Shizuku-API](https://github.com/RikkaApps/Shizuku-API)**: Apache-2.0 license
-
-<div align="center">
-   <img width="50%" src="https://count.getloli.com/@RebootNya?name=RebootNya&theme=moebooru&padding=6&offset=0&align=top&scale=1&pixelated=1&darkmode=auto" alt="counter"></br>
-</div>
+Apache-2.0, same as upstream (see [LICENSE](LICENSE)). Original work © daisukiKaffuChino and contributors. Third-party libraries: AboutLibraries, Android Jetpack, Material Components, libsu, RikkaX, Shizuku-API.

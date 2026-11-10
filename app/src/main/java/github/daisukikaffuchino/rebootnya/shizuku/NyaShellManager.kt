@@ -6,6 +6,7 @@ import android.os.IBinder
 import android.os.RemoteException
 import android.util.Log
 import github.daisukikaffuchino.rebootnya.IShellService
+import github.daisukikaffuchino.rebootnya.NyaApplication
 import github.daisukikaffuchino.rebootnya.utils.ShizukuUtil
 import rikka.shizuku.Shizuku
 import rikka.shizuku.Shizuku.UserServiceArgs
@@ -22,7 +23,8 @@ object NyaShellManager {
 
     private val userServiceArgs: UserServiceArgs = UserServiceArgs(
         ComponentName(
-            "github.daisukikaffuchino.rebootnya",
+            // Must match the real applicationId (differs from the code namespace in this fork).
+            NyaApplication.context.packageName,
             NyaShellService::class.java.name
         )
     )

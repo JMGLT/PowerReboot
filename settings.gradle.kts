@@ -21,5 +21,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "RebootNya"
+rootProject.name = "PowerReboot"
 include(":app")

@@ -90,7 +90,7 @@ class SettingsActivity : BaseActivity() {
         else {
             binding.run {
                 textVerInfo.text =
-                    "RebootNya ${getAppVer(context)}\n${getString(R.string.click_request_pm)}"
+                    "${getString(R.string.app_name)} ${getAppVer(context)}\n${getString(R.string.click_request_pm)}"
                 textWorkStatus.text = getString(R.string.not_working)
                 taffy.setImageResource(R.drawable.taffy_no)
 
@@ -191,7 +191,7 @@ class SettingsActivity : BaseActivity() {
 
         binding.apply {
             textWorkStatus.text = statusText
-            textVerInfo.text = "RebootNya ${getAppVer(context)}"
+            textVerInfo.text = "${getString(R.string.app_name)} ${getAppVer(context)}"
             taffy.setImageResource(R.drawable.taffy_ok)
             cardStatus.setOnClickListener(null)
         }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">RebootNya</string>
+    <string name="app_name" translatable="false">PowerReboot</string>
     <string name="confirm">Confirm</string>
     <string name="close">Close</string>
     <string name="setting">Settings</string>

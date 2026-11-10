@@ -8,8 +8,8 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "github.daisukikaffuchino.rebootnya"
-        minSdk = 28
+        applicationId = "io.github.jmglt.powerreboot"
+        minSdk = 26
         targetSdk = 37
         versionCode = 260820
         versionName = "1.9.0"
