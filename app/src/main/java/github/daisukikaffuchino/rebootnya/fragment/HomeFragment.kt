@@ -264,7 +264,7 @@ class HomeFragment : DialogFragment() {
                         if (item == ListItemEnum.SYSTEM_UI) {
                             Toast.makeText(appContext, R.string.stop_system_ui_tip, Toast.LENGTH_LONG).show()
                         }
-                        onFinished?.invoke() ?: if (isAdded) dismiss()
+                        if (onFinished != null) onFinished() else if (isAdded) dismiss()
                     }
 
                     else -> {
