@@ -4,6 +4,10 @@ PowerReboot is a fork of [RebootNya](https://github.com/daisukiKaffuChino/Reboot
 
 It is a simple reboot utility that gives quick access to reboot options that normally need elevated privileges (reboot, power off, recovery, bootloader, safe mode, soft reboot, restart System UI, lock screen). It works with **Root** or **[Shizuku](https://shizuku.rikka.app/)**.
 
+## Download
+
+Get the latest APK from the **[Releases page](https://github.com/JMGLT/PowerReboot/releases/latest)** and install it (you may need to allow installs from your browser or file manager). Requires Android 8.0+ and either Root or Shizuku.
+
 ## Changes from upstream
 
 - `minSdk` lowered from 28 to 26.

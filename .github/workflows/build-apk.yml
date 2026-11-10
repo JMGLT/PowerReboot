@@ -47,6 +47,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          VER="${GITHUB_REF_NAME#v}"
+          cat > notes.md <<EOF
+          Fork of [RebootNya](https://github.com/daisukiKaffuChino/RebootNya) that runs on **Android 8.0 (API 26) and newer**.
+
+          ### Install
+          Download **PowerReboot_${VER}.apk** below and install it. It works with Root or Shizuku.
+
+          ### Notes
+          - Installs alongside the original RebootNya (different package: \`io.github.jmglt.powerreboot\`).
+          - Debug-signed build: to update to a later version you may need to uninstall this one first.
+          - Based on upstream RebootNya 1.9.0 (Apache-2.0).
+          EOF
           gh release create "$GITHUB_REF_NAME" "${{ steps.apk.outputs.file }}" \
-            --title "PowerReboot ${GITHUB_REF_NAME#v} (Android 8.0+)" \
-            --notes "Fork of RebootNya for Android 8.0 (API 26) and newer. Debug-signed build."
+            --title "PowerReboot ${VER}" --notes-file notes.md --latest
