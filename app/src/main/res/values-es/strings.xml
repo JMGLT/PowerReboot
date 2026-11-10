@@ -67,4 +67,11 @@
     <string name="tile_already_added">El mosaico ya se ha añadido</string>
     <string name="tile_add_cancelled">No se añadió el mosaico</string>
     <string name="tile_add_failed">No se pudo añadir el mosaico</string>
+
+    <string name="work_mode_auto">Automático</string>
+    <string name="work_mode_adb">ADB local (sin root ni Shizuku)</string>
+    <string name="adb_connecting">Conectando con ADB local… Si aparece un aviso en pantalla, marca “Permitir siempre” y acepta.</string>
+    <string name="adb_unavailable">No se puede acceder a ADB local. Activa la depuración por red/inalámbrica (puerto 5555) en Opciones de desarrollador.</string>
+    <string name="adb_unauthorized">La autorización de ADB fue rechazada o caducó. Inténtalo de nuevo y acepta el aviso.</string>
+    <string name="adb_authorized_ok">ADB local autorizado</string>
 </resources>

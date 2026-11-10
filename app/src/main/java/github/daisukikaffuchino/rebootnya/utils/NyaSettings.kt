@@ -6,11 +6,13 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.text.TextUtils
 import androidx.annotation.IntDef
 import androidx.appcompat.app.AppCompatDelegate
+import com.topjohnwu.superuser.Shell
 import rikka.shizuku.Shizuku
 import java.util.Locale
 
@@ -49,21 +51,33 @@ object NyaSettings {
         if (sPreferences == null) {
             sPreferences = getSettingsStorageContext(context)
                 .getSharedPreferences(NAME, Context.MODE_PRIVATE)
+            // Older builds saved "Shizuku" as the work mode just by opening the settings.
+            // Forget that stored value once so the new automatic mode takes over.
+            if (!sPreferences!!.getBoolean("work_mode_auto_migrated", false)) {
+                sPreferences!!.edit()
+                    .remove("work_mode")
+                    .putBoolean("work_mode_auto_migrated", true)
+                    .apply()
+            }
         }
     }
 
     @SuppressLint("UniqueConstants")
     @IntDef(
+        MODE.AUTO,
         MODE.SHIZUKU,
         MODE.ROOT,
+        MODE.ADB,
         MODE.PROCESS,
         MODE.USER_SERVICE
     )
     @Retention(AnnotationRetention.SOURCE)
     annotation class MODE {
         companion object {
+            const val AUTO = 0
             const val SHIZUKU = 1
             const val ROOT = 2
+            const val ADB = 3
             const val PROCESS = 1 // Note: Same value as SHIZUKU
             const val USER_SERVICE = 2 // Note: Same value as ROOT
         }
@@ -81,15 +95,36 @@ object NyaSettings {
         }
     }
 
+    /** What the user picked in settings (AUTO when nothing was picked). */
+    @JvmStatic
+    @MODE
+    fun getSelectedWorkMode(): Int = preferences.getInt("work_mode", MODE.AUTO)
+
+    private var autoRootGranted: Boolean? = null
+
+    /**
+     * The mode that is actually used. AUTO resolves to the first one that works without
+     * any user action: Shizuku (running + permission granted), then Root, then local ADB.
+     */
     @JvmStatic
     @MODE
     fun getWorkMode(): Int {
-        if (preferences.contains("work_mode")) {
-            return preferences.getInt("work_mode", MODE.SHIZUKU)
+        val selected = getSelectedWorkMode()
+        if (selected != MODE.AUTO) return selected
+
+        val shizukuReady = try {
+            Shizuku.pingBinder() && Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+        } catch (_: Throwable) {
+            false
         }
-        // Nothing chosen yet: use Shizuku only if its service is actually running,
-        // otherwise Root, so devices without Shizuku work out of the box.
-        return if (Shizuku.pingBinder()) MODE.SHIZUKU else MODE.ROOT
+        if (shizukuReady) return MODE.SHIZUKU
+
+        val root = autoRootGranted ?: (try {
+            Shell.isAppGrantedRoot() == true
+        } catch (_: Throwable) {
+            false
+        }).also { autoRootGranted = it }
+        return if (root) MODE.ROOT else MODE.ADB
     }
 
     @JvmStatic

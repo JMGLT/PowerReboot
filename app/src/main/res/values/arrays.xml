@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="work_mode">
+        <item>@string/work_mode_auto</item>
         <item>Shizuku</item>
         <item>Root</item>
+        <item>@string/work_mode_adb</item>
     </string-array>
 
     <integer-array name="work_mode_value">
+        <item>0</item>
         <item>1</item>
         <item>2</item>
+        <item>3</item>
     </integer-array>
 
     <string-array name="shell_mode">

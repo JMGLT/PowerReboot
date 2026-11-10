@@ -1,6 +1,8 @@
 package github.daisukikaffuchino.rebootnya.preference
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.os.Parcel
 import android.os.Parcelable
 import android.text.Editable
@@ -14,6 +16,7 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import com.topjohnwu.superuser.Shell
 import github.daisukikaffuchino.rebootnya.R
+import github.daisukikaffuchino.rebootnya.utils.AdbLocal
 import github.daisukikaffuchino.rebootnya.utils.NyaSettings
 import github.daisukikaffuchino.rebootnya.utils.RootUtil
 import github.daisukikaffuchino.rebootnya.utils.ShizukuUtil
@@ -69,6 +72,34 @@ class EditTextPreference(private val context: Context, attrs: AttributeSet?) : P
                     } else {
                         Toast.makeText(context, R.string.no_permission, Toast.LENGTH_SHORT).show()
                     }
+                }
+
+                NyaSettings.MODE.ADB -> {
+                    val appContext = context.applicationContext
+                    Toast.makeText(appContext, R.string.adb_connecting, Toast.LENGTH_SHORT).show()
+                    Thread {
+                        val result = AdbLocal.run(
+                            appContext, command, false, AdbLocal.AUTH_TIMEOUT_MS
+                        )
+                        Handler(Looper.getMainLooper()).post {
+                            if (result is AdbLocal.Result.Ok && result.exitCode == 0) {
+                                saveCommandToHistory(command)
+                                Toast.makeText(appContext, "Success!\nExit code: 0", Toast.LENGTH_SHORT)
+                                    .show()
+                                editText?.text = null
+                            } else {
+                                val msg = when (result) {
+                                    is AdbLocal.Result.Ok ->
+                                        "${appContext.getString(R.string.exec_fail)}\nExit code: ${result.exitCode}"
+                                    is AdbLocal.Result.Unavailable ->
+                                        appContext.getString(R.string.adb_unavailable)
+                                    is AdbLocal.Result.Failed ->
+                                        appContext.getString(R.string.exec_fail)
+                                }
+                                Toast.makeText(appContext, msg, Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }.start()
                 }
 
                 NyaSettings.MODE.SHIZUKU -> {

@@ -83,4 +83,11 @@
     <string name="open_source_license">Open Source License</string>
     <string name="enter_content">Enter content…</string>
     <string name="tile_power_menu">Power Menu</string>
+
+    <string name="work_mode_auto">Automatic</string>
+    <string name="work_mode_adb">Local ADB (no root or Shizuku)</string>
+    <string name="adb_connecting">Connecting to local ADB… If a prompt appears on screen, tick “Always allow” and accept.</string>
+    <string name="adb_unavailable">Local ADB is not reachable. Turn on network/wireless debugging (port 5555) in Developer options.</string>
+    <string name="adb_unauthorized">ADB authorization was refused or timed out. Try again and accept the prompt.</string>
+    <string name="adb_authorized_ok">Local ADB authorized</string>
 </resources>

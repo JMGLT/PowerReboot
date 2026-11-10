@@ -11,8 +11,8 @@ android {
         applicationId = "io.github.jmglt.powerreboot"
         minSdk = 26
         targetSdk = 37
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 3
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.preference)
 
     implementation(libs.core)
+    implementation(libs.dadb)
     implementation(libs.core.ktx)
     implementation(libs.provider)
     implementation(libs.api)

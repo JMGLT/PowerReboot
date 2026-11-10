@@ -72,14 +72,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         preferenceManager.setStorageDeviceProtected()
         preferenceManager.sharedPreferencesName = NyaSettings.NAME
         preferenceManager.sharedPreferencesMode = Context.MODE_PRIVATE
-        // Inflating the screen persists the XML default for work_mode (Shizuku) as if the user
-        // had chosen it. Remember the auto-detected mode first and restore it afterwards.
-        val workModeWasUnset = !NyaSettings.preferences.contains("work_mode")
-        val autoWorkMode = NyaSettings.getWorkMode()
         setPreferencesFromResource(R.xml.preference_settings, null)
 
         workModePreference = findPreference("work_mode")!!
-        if (workModeWasUnset) workModePreference.value = autoWorkMode
         shellModePreference = findPreference("shizuku_shell_mode")!!
         userServiceInfoPreference = findPreference("user_service_mode_info")!!
         devicePolicyPreference = findPreference("device_policy")!!
@@ -99,12 +94,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val work = NyaSettings.getWorkMode()
         workModePreference.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _: Preference?, value: Any? ->
-                if (value is Int && work != value)
+                if (value is Int && NyaSettings.getSelectedWorkMode() != value)
                     recreateActivityWithFade()
                 true
             }
 
-        if (work == NyaSettings.MODE.ROOT) {
+        if (work == NyaSettings.MODE.ROOT || work == NyaSettings.MODE.ADB) {
             shellModePreference.isVisible = false
             userServiceInfoPreference.isVisible = false
             hideUnavailableOptionsPreference.isVisible = false

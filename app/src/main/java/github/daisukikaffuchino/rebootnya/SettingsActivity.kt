@@ -13,6 +13,7 @@ import github.daisukikaffuchino.rebootnya.databinding.ActivitySettingsBinding
 import github.daisukikaffuchino.rebootnya.fragment.DevicePolicyFragment
 import github.daisukikaffuchino.rebootnya.fragment.LicenseFragment
 import github.daisukikaffuchino.rebootnya.fragment.SettingsFragment
+import github.daisukikaffuchino.rebootnya.utils.AdbLocal
 import github.daisukikaffuchino.rebootnya.utils.NyaSettings
 import github.daisukikaffuchino.rebootnya.utils.RootUtil
 import github.daisukikaffuchino.rebootnya.utils.ShizukuUtil
@@ -80,6 +81,10 @@ class SettingsActivity : BaseActivity() {
         Shizuku.addRequestPermissionResultListener(requestPermissionResultListener)
 
         val workingMode = NyaSettings.getWorkMode()
+        if (workingMode == NyaSettings.MODE.ADB) {
+            checkAdbStatus()
+            return
+        }
         val isPermitted = when (workingMode) {
             NyaSettings.MODE.ROOT -> Shell.isAppGrantedRoot() != false
             NyaSettings.MODE.SHIZUKU -> ShizukuUtil(context).checkShizukuPermission()
@@ -87,32 +92,75 @@ class SettingsActivity : BaseActivity() {
         }
         if (isPermitted)
             setWorkingStatus(workingMode)
-        else {
-            binding.run {
-                textVerInfo.text =
-                    "${getString(R.string.app_name)} ${getAppVer(context)}\n${getString(R.string.click_request_pm)}"
-                textWorkStatus.text = getString(R.string.not_working)
-                taffy.setImageResource(R.drawable.taffy_no)
+        else
+            showNotWorking(workingMode)
+    }
 
-                cardStatus.setOnClickListener {
-                    when (workingMode) {
-                        NyaSettings.MODE.ROOT -> RootUtil(context).requestRoot()
-                        NyaSettings.MODE.SHIZUKU -> {
-                            if (!Shizuku.pingBinder()) {
-                                Toast.makeText(
-                                    context,
-                                    R.string.shizuku_not_run,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                return@setOnClickListener
-                            }
-                            Shizuku.requestPermission(SHIZUKU_REQUEST_CODE)
+    @SuppressLint("SetTextI18n")
+    private fun showNotWorking(workingMode: Int) {
+        binding.run {
+            textVerInfo.text =
+                "${getString(R.string.app_name)} ${getAppVer(context)}\n${getString(R.string.click_request_pm)}"
+            textWorkStatus.text = getString(R.string.not_working)
+            taffy.setImageResource(R.drawable.taffy_no)
+
+            cardStatus.setOnClickListener {
+                when (workingMode) {
+                    NyaSettings.MODE.ROOT -> RootUtil(context).requestRoot()
+                    NyaSettings.MODE.ADB -> authorizeAdb()
+                    NyaSettings.MODE.SHIZUKU -> {
+                        if (!Shizuku.pingBinder()) {
+                            Toast.makeText(
+                                context,
+                                R.string.shizuku_not_run,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@setOnClickListener
                         }
+                        Shizuku.requestPermission(SHIZUKU_REQUEST_CODE)
                     }
                 }
             }
         }
+    }
 
+    private fun checkAdbStatus() {
+        // Connecting is what makes the "Allow USB debugging?" prompt appear, so only probe
+        // in the background when this app was already authorized once.
+        if (!NyaSettings.preferences.getBoolean("adb_authorized", false)) {
+            showNotWorking(NyaSettings.MODE.ADB)
+            return
+        }
+        val appContext = applicationContext
+        Thread {
+            val result = AdbLocal.run(appContext, "true", false, 8_000L)
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                if (result is AdbLocal.Result.Ok && result.exitCode == 0) {
+                    setWorkingStatus(NyaSettings.MODE.ADB)
+                } else {
+                    showNotWorking(NyaSettings.MODE.ADB)
+                }
+            }
+        }.start()
+    }
+
+    private fun authorizeAdb() {
+        val appContext = applicationContext
+        Toast.makeText(appContext, R.string.adb_connecting, Toast.LENGTH_LONG).show()
+        Thread {
+            val result = AdbLocal.authorize(appContext)
+            runOnUiThread {
+                if (result is AdbLocal.Result.Ok && result.exitCode == 0) {
+                    Toast.makeText(appContext, R.string.adb_authorized_ok, Toast.LENGTH_SHORT).show()
+                    if (!isFinishing && !isDestroyed) setWorkingStatus(NyaSettings.MODE.ADB)
+                } else {
+                    val msg = if (result is AdbLocal.Result.Unavailable && result.reason != "timeout")
+                        R.string.adb_unavailable else R.string.adb_unauthorized
+                    Toast.makeText(appContext, msg, Toast.LENGTH_LONG).show()
+                }
+            }
+        }.start()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -186,6 +234,7 @@ class SettingsActivity : BaseActivity() {
                 }
             }
 
+            NyaSettings.MODE.ADB -> "${getString(R.string.working)} <ADB>"
             else -> "${getString(R.string.working)} <Root>"
         }
 

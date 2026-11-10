@@ -29,6 +29,7 @@ import github.daisukikaffuchino.rebootnya.adapter.HomeRecyclerAdapter
 import github.daisukikaffuchino.rebootnya.data.HomeListItemData
 import github.daisukikaffuchino.rebootnya.data.ListItemEnum
 import github.daisukikaffuchino.rebootnya.shizuku.NyaShellManager
+import github.daisukikaffuchino.rebootnya.utils.AdbLocal
 import github.daisukikaffuchino.rebootnya.utils.NyaSettings
 import github.daisukikaffuchino.rebootnya.utils.RootUtil
 import github.daisukikaffuchino.rebootnya.utils.ShizukuUtil
@@ -130,8 +131,7 @@ class HomeFragment : DialogFragment() {
 
         intent.getStringExtra(EXTRA_ACTION_ITEM)?.let { displayName ->
             Handler(Looper.getMainLooper()).postDelayed({
-                doAction(ListItemEnum.fromDisplayName(displayName))
-                dismiss()
+                doAction(ListItemEnum.fromDisplayName(displayName)) { dismiss() }
             }, 1000)
         }
 
@@ -212,18 +212,76 @@ class HomeFragment : DialogFragment() {
         return 0
     }
 
-    private fun doAction(listItemEnum: ListItemEnum) {
+    /** [onFinished] runs once the action has been attempted (asynchronously for local ADB). */
+    private fun doAction(listItemEnum: ListItemEnum, onFinished: (() -> Unit)? = null) {
         if (listItemEnum == ListItemEnum.LOCK_SCREEN &&
             NyaSettings.preferences.getBoolean("device_policy_enabled", false)
         ) {
             lockWithDevicePolicy()
+            onFinished?.invoke()
             return
         }
-        if (NyaSettings.getWorkMode() == NyaSettings.MODE.ROOT) {
-            funcRoot(listItemEnum)
-        } else {
-            funcShizuku(listItemEnum)
+        when (NyaSettings.getWorkMode()) {
+            NyaSettings.MODE.ROOT -> funcRoot(listItemEnum)
+            NyaSettings.MODE.ADB -> {
+                funcAdb(listItemEnum, onFinished)
+                return
+            }
+            else -> funcShizuku(listItemEnum)
         }
+        onFinished?.invoke()
+    }
+
+    private var adbBusy = false
+
+    private fun adbCommandFor(item: ListItemEnum): Pair<String, Boolean>? = when (item) {
+        ListItemEnum.LOCK_SCREEN -> "input keyevent KEYCODE_POWER" to false
+        ListItemEnum.REBOOT -> "svc power reboot" to true
+        ListItemEnum.SOFT_REBOOT -> "setprop ctl.restart zygote" to true
+        ListItemEnum.SYSTEM_UI -> "am force-stop com.android.systemui" to false
+        ListItemEnum.RECOVERY -> "svc power reboot recovery" to true
+        ListItemEnum.BOOTLOADER -> "svc power reboot bootloader" to true
+        ListItemEnum.SAMSUNG_DOWNLOAD -> "reboot download" to true
+        ListItemEnum.SAFE_MODE -> "setprop persist.sys.safemode 1 && svc power reboot" to true
+        ListItemEnum.POWER_OFF -> "reboot -p" to true
+    }
+
+    private fun funcAdb(item: ListItemEnum, onFinished: (() -> Unit)?) {
+        if (adbBusy) return
+        val (command, expectDisconnect) = adbCommandFor(item) ?: return
+        adbBusy = true
+        val appContext = mContext.applicationContext
+        Toast.makeText(appContext, R.string.adb_connecting, Toast.LENGTH_LONG).show()
+
+        Thread {
+            val result = AdbLocal.run(
+                appContext, command, expectDisconnect, AdbLocal.AUTH_TIMEOUT_MS
+            )
+            Handler(Looper.getMainLooper()).post {
+                adbBusy = false
+                when {
+                    result is AdbLocal.Result.Ok && result.exitCode == 0 -> {
+                        if (item == ListItemEnum.SYSTEM_UI) {
+                            Toast.makeText(appContext, R.string.stop_system_ui_tip, Toast.LENGTH_LONG).show()
+                        }
+                        onFinished?.invoke() ?: if (isAdded) dismiss()
+                    }
+
+                    else -> {
+                        val msg = if (result is AdbLocal.Result.Unavailable) {
+                            if (result.reason == "timeout") R.string.adb_unauthorized
+                            else R.string.adb_unavailable
+                        } else R.string.exec_fail
+                        Log.w("PowerReboot", "adb result: $result")
+                        Toast.makeText(appContext, msg, Toast.LENGTH_LONG).show()
+                        // Let the toast be read before the process is closed.
+                        if (onFinished != null) {
+                            Handler(Looper.getMainLooper()).postDelayed({ onFinished() }, 2500)
+                        }
+                    }
+                }
+            }
+        }.start()
     }
 
     private fun lockWithDevicePolicy() {

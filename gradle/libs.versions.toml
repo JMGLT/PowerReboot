@@ -4,6 +4,7 @@ api = "13.1.5"
 appcompatVersion = "1.6.1"
 borderview = "1.1.0"
 core = "6.0.0"
+dadb = "1.2.10"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
@@ -21,6 +22,7 @@ aboutLibraries = "14.2.1"
 api = { module = "dev.rikka.shizuku:api", version.ref = "api" }
 borderview = { module = "dev.rikka.rikkax.widget:borderview", version.ref = "borderview" }
 core = { module = "com.github.topjohnwu.libsu:core", version.ref = "core" }
+dadb = { module = "dev.mobile:dadb", version.ref = "dadb" }
 dev-appcompat = { module = "dev.rikka.rikkax.appcompat:appcompat", version.ref = "appcompatVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

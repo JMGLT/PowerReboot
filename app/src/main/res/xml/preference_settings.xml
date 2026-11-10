@@ -2,7 +2,7 @@
 <androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory app:title="@string/launch">
         <github.daisukikaffuchino.rebootnya.preference.IntegerSimpleMenuPreference
-            app:defaultValue="1"
+            app:defaultValue="0"
             app:entries="@array/work_mode"
             app:entryValues="@array/work_mode_value"
             app:key="work_mode"

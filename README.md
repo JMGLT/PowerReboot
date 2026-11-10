@@ -14,7 +14,8 @@ Get the latest APK from the **[Releases page](https://github.com/JMGLT/PowerRebo
 - `PackageInfo.longVersionCode` (API 28) replaced with `PackageInfoCompat.getLongVersionCode`.
 - App renamed to PowerReboot, with its own `applicationId` (`io.github.jmglt.powerreboot`), so it installs next to the original RebootNya instead of replacing it. The Java/Kotlin package is unchanged to keep the diff small.
 - The Shizuku user-service component now uses the real package name instead of a hardcoded one.
-- Work mode is auto-detected on first run: Shizuku if its service is running, otherwise Root (upstream always defaulted to Shizuku, which fails with "Shizuku permission denied" on devices without it). You can still change it in Settings.
+- Work mode is now **Automatic** by default: Shizuku if it is running and authorized, otherwise Root, otherwise a new **Local ADB** mode (upstream always defaulted to Shizuku, which fails with "Shizuku permission denied" on devices without it). You can still pick a mode in Settings.
+- New **Local ADB** mode: the app talks to the device's own `adbd` on `127.0.0.1:5555`, so it works without root and without Shizuku. Requirements: network/wireless debugging enabled on the device (port 5555, e.g. `adb tcpip 5555` once), and accepting the "Allow USB debugging?" prompt the first time (tick "Always allow"). This is why the app now declares the `INTERNET` permission (loopback only).
 
 Everything else is upstream code. This fork has not been tested on every Android 8.x device; please open an issue if something fails.
 
