@@ -2,11 +2,14 @@ package github.daisukikaffuchino.rebootnya.fragment
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.app.UiModeManager
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -243,7 +246,21 @@ class HomeFragment : DialogFragment() {
         ListItemEnum.BOOTLOADER -> "svc power reboot bootloader" to true
         ListItemEnum.SAMSUNG_DOWNLOAD -> "reboot download" to true
         ListItemEnum.SAFE_MODE -> "setprop persist.sys.safemode 1 && svc power reboot" to true
-        ListItemEnum.POWER_OFF -> "reboot -p" to true
+        // TV boxes have no real "off": the standard `reboot -p` becomes a reboot there, and
+        // HDMI-CEC wakes a sleeping box right away. So on TV: CEC off, then standby.
+        ListItemEnum.POWER_OFF ->
+            if (isTelevision()) {
+                "settings put global hdmi_control_enabled 0; sleep 2; input keyevent KEYCODE_SLEEP" to true
+            } else {
+                "reboot -p" to true
+            }
+    }
+
+    private fun isTelevision(): Boolean {
+        val pm = mContext.packageManager
+        if (pm.hasSystemFeature(PackageManager.FEATURE_LEANBACK)) return true
+        val ui = mContext.getSystemService(UiModeManager::class.java)
+        return ui?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
     }
 
     private fun funcAdb(item: ListItemEnum, onFinished: (() -> Unit)?) {
