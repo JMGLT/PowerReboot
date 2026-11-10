@@ -28,7 +28,7 @@ jobs:
       - name: Inspect APK
         run: |
           AAPT2=$(ls "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -1)
-          "$AAPT2" dump badging app/build/outputs/apk/debug/*.apk | grep -E "^(package|sdkVersion|targetSdkVersion|application-label:)"
+          "$AAPT2" dump badging app/build/outputs/apk/debug/*.apk | grep -E "^(package|minSdkVersion|sdkVersion|targetSdkVersion|application-label:)"
 
       - name: Name the APK
         id: apk
